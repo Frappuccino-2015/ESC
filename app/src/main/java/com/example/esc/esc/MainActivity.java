@@ -39,8 +39,9 @@ import java.util.List;
 
 public class MainActivity extends ActionBarActivity {
 
-    private static String URL_PRIMARY = "http://paldal.suwon.go.kr";
-    private static String GETNOTICE = "/menufiles/residents/di_list.asp?menuid=sub050202";
+    private static String URL_PRIMARY = "http://paldal.suwon.go.kr/menufiles/residents/";
+    private static String URL_LIST = "di_list.asp?menuid=sub050202";
+
     private String url;
     private java.net.URL URL;
 
@@ -89,15 +90,15 @@ public class MainActivity extends ActionBarActivity {
                     public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
 
                         ListData mData = mListData.get(position);
-                        String URL_BCS = mData.mUrl;
+                        String URL_VIEW = mData.mUrl;
 
-                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(URL_PRIMARY + URL_BCS)));
+                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(URL_PRIMARY + URL_VIEW)));
 
                     }
                 });
 
 
-        url = URL_PRIMARY + GETNOTICE;
+        url = URL_PRIMARY + URL_LIST;
 
         if(isInternetCon()) {
             Toast.makeText(MainActivity.this, "인터넷에 연결되지않아 불러오기를 중단합니다.", Toast.LENGTH_SHORT).show();
@@ -183,8 +184,6 @@ public class MainActivity extends ActionBarActivity {
                         String BCS_NUMBER = BC_NUMBER.getContent().toString();
                         String BCS_DONG = BC_DONG.getContent().toString();
 
-
-
                         mListData.add(new ListData(BCS_GUBUN, BCS_PROGRAM, BCS_DAY, BCS_TIME,BCS_PHONE,BCS_NUMBER,BCS_DONG,BCS_url));
 
 
@@ -247,7 +246,7 @@ public class MainActivity extends ActionBarActivity {
 
         public TextView mGubun;
         public TextView mProgram;
-        public TextView mUrl;
+        public TextView mDay;
     }
 
     public class BBSListAdapter extends BaseAdapter {
@@ -285,7 +284,7 @@ public class MainActivity extends ActionBarActivity {
 
                 holder.mGubun = (TextView) convertView.findViewById(R.id.item_title);
                 holder.mProgram = (TextView) convertView.findViewById(R.id.item_writer);
-                holder.mUrl = (TextView) convertView.findViewById(R.id.item_date);
+                holder.mDay = (TextView) convertView.findViewById(R.id.item_date);
                 convertView.setTag(holder);
 
             } else {
@@ -297,7 +296,7 @@ public class MainActivity extends ActionBarActivity {
 
             holder.mGubun.setText(mData.mGubun);
             holder.mProgram.setText(mData.mProgram);
-            holder.mUrl.setText(mData.mUrl);
+            holder.mDay.setText(mData.mDay);
 
             return convertView;
 
