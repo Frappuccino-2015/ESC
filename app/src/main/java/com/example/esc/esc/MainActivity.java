@@ -14,7 +14,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
-import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -40,8 +39,8 @@ import java.util.List;
 
 public class MainActivity extends ActionBarActivity {
 
-    private static String URL_PRIMARY = "http://www.dongbaek.hs.kr"; //È¨ÆäÀÌÁö ¿øº» ÁÖ¼ÒÀÌ´Ù.
-    private static String GETNOTICE = "/main.php?menugrp=030100&master=bbs&act=list&master_sid=7"; //È¨ÆäÀÌÁö ÀÇ °Ô½ÃÆÇÀ» ³ªÅ¸³»´Â µÚ ÁÖ¼Ò, ºñ½ÁÇÑ °Ô½ÃÆÇµéÀº °ÅÀÇ ÆÄ½ÌÀÌ °¡´ÉÇÏ¹Ç·Î ÀÀ¿ëÇÏ¿© »ç¿ëÇÏÀÚ.
+    private static String URL_PRIMARY = "http://paldal.suwon.go.kr";
+    private static String GETNOTICE = "/menufiles/residents/di_list.asp?menuid=sub050202";
     private String url;
     private java.net.URL URL;
 
@@ -60,10 +59,10 @@ public class MainActivity extends ActionBarActivity {
     ArrayList<ListData> mListData = new ArrayList<>();
 
     @Override
-    protected void onStop() { //¸ØÃß¾úÀ»¶§ ´ÙÀÌ¾î·Î±×¸¦ Á¦°ÅÇØÁÖ´Â ¸Ş¼­µå
+    protected void onStop() {
         super.onStop();
         if ( progressDialog != null)
-            progressDialog.dismiss(); //´ÙÀÌ¾î·Î±×°¡ ÄÑÁ®ÀÖÀ»°æ¿ì (!null) Á¾·á½ÃÄÑÁØ´Ù
+            progressDialog.dismiss();
     }
 
     @Override
@@ -80,32 +79,32 @@ public class MainActivity extends ActionBarActivity {
         dlDrawer.setDrawerListener(dtToggle);
 
 
-        BBSList = (ListView)findViewById(R.id.listView); //¸®½ºÆ®¼±¾ğ
+        BBSList = (ListView)findViewById(R.id.listView);
         BBSAdapter = new BBSListAdapter(this);
-        BBSList.setAdapter(BBSAdapter); //¸®½ºÆ®¿¡ ¾î´ğÅÍ¸¦ ¸Ô¿©ÁØ´Ù.
-        BBSList.setOnItemClickListener( //¸®½ºÆ® Å¬¸¯½Ã ½ÇÇàµÉ ·ÎÁ÷ ¼±¾ğ
+        BBSList.setAdapter(BBSAdapter);
+        BBSList.setOnItemClickListener(
                 new AdapterView.OnItemClickListener() {
 
                     @Override
                     public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
 
-                        ListData mData = mListData.get(position); // Å¬¸¯ÇÑ Æ÷Áö¼ÇÀÇ µ¥ÀÌÅÍ¸¦ °¡Á®¿Â´Ù.
-                        String URL_BCS = mData.mUrl; //°¡Á®¿Â µ¥ÀÌÅÍ Áß url ºÎºĞ¸¸ ÀûÃâÇØ³½´Ù.
+                        ListData mData = mListData.get(position);
+                        String URL_BCS = mData.mUrl;
 
-                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(URL_PRIMARY + URL_BCS))); //ÀûÃâÇØ³½ url À» ÀÌ¿ëÇØ URL_PRIMARY ¿Í ºÙÀÌ°í
+                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(URL_PRIMARY + URL_BCS)));
 
                     }
                 });
 
 
-        url = URL_PRIMARY + GETNOTICE; //ÆÄ½ÌÇÏ±âÀü PRIMARY URL °ú °øÁö»çÇ× URL À» ÇÕÃÄ ¿ÏÀüÇÑ URL À»¸¸µç´Ù.
+        url = URL_PRIMARY + GETNOTICE;
 
-        if(isInternetCon()) { //false ¹İÈ¯½Ã if ¹®¾ÈÀÇ ·ÎÁ÷ ½ÇÇà
-            Toast.makeText(MainActivity.this, "ÀÎÅÍ³İ¿¡ ¿¬°áµÇÁö¾Ê¾Æ ºÒ·¯¿À±â¸¦ Áß´ÜÇÕ´Ï´Ù.", Toast.LENGTH_SHORT).show();
+        if(isInternetCon()) {
+            Toast.makeText(MainActivity.this, "ì¸í„°ë„·ì— ì—°ê²°ë˜ì§€ì•Šì•„ ë¶ˆëŸ¬ì˜¤ê¸°ë¥¼ ì¤‘ë‹¨í•©ë‹ˆë‹¤.", Toast.LENGTH_SHORT).show();
             finish();
-        }else{ //ÀÎÅÍ³İ Ã¼Å© Åë°ú½Ã ½ÇÇàÇÒ ·ÎÁ÷
+        }else{
             try {
-                process(); //³×Æ®¿öÅ© °ü·ÃÀº µû·Î ¾²·¹µå¸¦ »ı¼ºÇØ¾ß UI ¾²·¹µå¿Í °ãÄ¡Áö ¾Ê´Â´Ù. ±×·¯¹Ç·Î Thread °¡ ¼±¾ğµÈ process ¸Ş¼­µå¸¦ È£ÃâÇÑ´Ù.
+                process();
                 BBSAdapter.notifyDataSetChanged();
             } catch (Exception e) {
                 Log.d("ERROR", e + "");
@@ -123,68 +122,70 @@ public class MainActivity extends ActionBarActivity {
             @Override
             public void run() {
 
-                Handler Progress = new Handler(Looper.getMainLooper()); //³×Æ®¿öÅ© ¾²·¹µå¿Í º°°³·Î µû·Î ÇÚµé·¯¸¦ ÀÌ¿ëÇÏ¿© ¾²·¹µå¸¦ »ı¼ºÇÑ´Ù.
+                Handler Progress = new Handler(Looper.getMainLooper());
                 Progress.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        progressDialog = ProgressDialog.show(MainActivity.this, "", "°Ô½ÃÆÇ Á¤º¸¸¦ °¡Á®¿À´ÂÁß ÀÔ´Ï´Ù.");
+                        progressDialog = ProgressDialog.show(MainActivity.this, "", "ê²Œì‹œíŒ ì •ë³´ë¥¼ ê°€ì ¸ì˜¤ëŠ”ì¤‘ ì…ë‹ˆë‹¤.");
                     }
                 }, 0);
 
                 try {
                     URL = new URL(url);
                     InputStream html = URL.openStream();
-                    source = new net.htmlparser.jericho.Source(new InputStreamReader(html, "utf-8")); //¼Ò½º¸¦ UTF-8 ÀÎÄÚµùÀ¸·Î ºÒ·¯¿Â´Ù.
-                    source.fullSequentialParse(); //¼øÂ÷ÀûÀ¸·Î ±¸¹®ºĞ¼®
+                    source = new net.htmlparser.jericho.Source(new InputStreamReader(html, "EUC-KR"));
+                    source.fullSequentialParse();
                 } catch (Exception e) {
                     Log.d("ERROR", e + "");
                 }
 
-                List<StartTag> tabletags = source.getAllStartTags(HTMLElementName.DIV); // DIV Å¸ÀÔÀÇ ¸ğµç ÅÂ±×µéÀ» ºÒ·¯¿Â´Ù.
+                List<StartTag> tabletags = source.getAllStartTags(HTMLElementName.TABLE);
 
-                for(int arrnum = 0;arrnum < tabletags.size(); arrnum++){ //DIV ¸ğµç ÅÂ±×Áß bbsContent ÅÂ±×°¡ ¸î¹øÂ°ÀÓÀ» ±¸ÇÑ´Ù.
+                for(int arrnum = 0;arrnum < tabletags.size(); arrnum++){
 
 
-                    if(tabletags.get(arrnum).toString().equals("<div class=\"bbsContent\">")) {
-                        BBSlocate = arrnum; //DIV Å¬·¡½º°¡ bbsContent ¸é arrnum °ªÀ» BBSlocate ·Î ¸î¹øÂ°ÀÎÁö ÀúÀåÇÑ´Ù.
-                        Log.d("BBSLOCATES", arrnum+""); //arrnum ·Î±ë
+                    if(tabletags.get(arrnum).toString().equals("<table class=\"tableLayout05\">")) {
+                        BBSlocate = arrnum;
+                        Log.d("tableLayout05", arrnum+"");
                         break;
                     }
                 }
 
 
 
-                Element BBS_DIV = (Element) source.getAllElements(HTMLElementName.DIV).get(BBSlocate); //BBSlocate Á¢¼Ó¹øÂ° ÀÇ DIV ¸¦ ¸ğµÎ °¡Á®¿Â´Ù.
-                Element BBS_TABLE = (Element) BBS_DIV.getAllElements(HTMLElementName.TABLE).get(0); //Å×ÀÌºí
-                Element BBS_TBODY = (Element) BBS_TABLE.getAllElements(HTMLElementName.TBODY).get(0); //µ¥ÀÌÅÍ°¡ ÀÖ´Â TBODY ¿¡ Á¢¼Ó
+                Element BBS_TABLE = (Element) source.getAllElements(HTMLElementName.TABLE).get(BBSlocate);
+                Element BBS_TBODY = (Element) BBS_TABLE.getAllElements(HTMLElementName.TBODY).get(0);
 
 
-                for(int C_TR = 0; C_TR < BBS_TBODY.getAllElements(HTMLElementName.TR).size();C_TR++){ //¿©±â¼­´Â ÀÌÁ¦ºÎÅÍ °Ô½ÃµÈ °Ô½Ã¹° µ¥ÀÌÅÍ¸¦ ºÒ·¯¿Í °Ô½ÃÆÇ ÀÎÅÍÆäÀÌ½º¸¦ ±¸¼ºÇÒ °ÍÀÌ´Ù.
-
-
-                    // ¼Ò½ºÀÇ È¿À²¼ºÀ» À§ÇØ¼­´Â for ¹®À» »ç¿ëÇÏ´Â°ÍÀÌ ÁÁÁö¸¸ , ÀÌÇØ¸¦ µ½±âÀ§ÇØ ¼Ò½º¸¦ ÀÏºÎ·Î ´Ã·Á µÎ¾ú´Ù.
+                for(int C_TR = 0; C_TR < BBS_TBODY.getAllElements(HTMLElementName.TR).size();C_TR++){
 
                     try {
-                        Element BBS_TR = (Element) BBS_TBODY.getAllElements(HTMLElementName.TR).get(C_TR); //TR Á¢¼Ó
+                        Element BBS_TR = (Element) BBS_TBODY.getAllElements(HTMLElementName.TR).get(C_TR);
 
-                        Element BC_TYPE = (Element) BBS_TR.getAllElements(HTMLElementName.TD).get(0); //Å¸ÀÔ À» ºÒ·¯¿Â´Ù.
-
-                        Element BC_info = (Element) BBS_TR.getAllElements(HTMLElementName.TD).get(2); //URL(herf) TITLE(title) À» ´ãÀº Á¤º¸¸¦ ºÒ·¯¿Â´Ù.
-                        Element BC_a = (Element) BC_info.getAllElements(HTMLElementName.A).get(0); //BC_info ¾ÈÀÇ a ÅÂ±×¸¦ °¡Á®¿Â´Ù.
-                        String BCS_url = BC_a.getAttributeValue("href"); //a ÅÂ±×ÀÇ herf ´Â BCS_url ·Î ¼±¾ğ
-                        String BCS_title = BC_a.getAttributeValue("title"); //a ÅÂ±×ÀÇ title Àº BCS_title ·Î ¼±¾ğ
-
-                        Element BC_writer = (Element) BBS_TR.getAllElements(HTMLElementName.TD).get(3); //±Û¾´ÀÌ¸¦ ºÒ·¯¿Â´Ù.
-                        Element BC_date = (Element) BBS_TR.getAllElements(HTMLElementName.TD).get(4); // ³¯Â¥¸¦ ºÒ·¯¿Â´Ù.
-
-                        String BCS_type = BC_TYPE.getContent().toString(); // Å¸ÀÔ°ªÀ» ´ãÀº ¿¤·¹¸ÕÆ®ÀÇ ÄÁÅÙÃ÷¸¦ ¹®ÀÚ¿­·Î º¯È¯½ÃÄÑ °¡Á®¿Â´Ù.
-                        String BCS_writer = BC_writer.getContent().toString(); // ÀÛ¼ºÀÚ°ªÀ» ´ãÀº ¿¤·¹¸ÕÆ®ÀÇ ÄÁÅÙÃ÷¸¦ ¹®ÀÚ¿­·Î º¯È¯½ÃÄÑ °¡Á®¿Â´Ù.
-                        String BCS_date = BC_date.getContent().toString(); // ÀÛ¼ºÀÏÀÚ°ªÀ» ´ãÀº ¿¤·¹¸ÕÆ®ÀÇ ÄÁÅÙÃ÷¸¦ ¹®ÀÚ¿­·Î º¯È¯½ÃÄÑ °¡Á®¿Â´Ù.
+                        Element BC_GUBUN = (Element)BBS_TR.getAllElements(HTMLElementName.TD).get(0);
+                        Element BC_PROGRAM = (Element)BBS_TR.getAllElements(HTMLElementName.TD).get(1);
+                        Element BC_DAY = (Element)BBS_TR.getAllElements(HTMLElementName.TD).get(2);
+                        Element BC_TIME = (Element)BBS_TR.getAllElements(HTMLElementName.TD).get(3);
+                        Element BC_PHONE = (Element)BBS_TR.getAllElements(HTMLElementName.TD).get(4);
+                        Element BC_NUMBER = (Element)BBS_TR.getAllElements(HTMLElementName.TD).get(5);
+                        Element BC_DONG = (Element)BBS_TR.getAllElements(HTMLElementName.TD).get(6);
+                        Element BC_info = (Element)BBS_TR.getAllElements(HTMLElementName.TD).get(7);
+                        Element BC_a = (Element) BC_info.getAllElements(HTMLElementName.A).get(0);
+                        String BCS_url = BC_a.getAttributeValue("href");
 
 
-                        mListData.add(new ListData(BCS_type, BCS_title, BCS_url, BCS_writer, BCS_date)); //µ¥ÀÌÅÍ°¡ ¸ğÀÌ¸é µ¥ÀÌÅÍ ¸®½ºÆ® Å¬·¡½º¿¡ µ¥ÀÌÅÍµéÀ» µî·ÏÇÑ´Ù.
-                        /* Log.d("BCSARR","Å¸ÀÔ:"+BCS_type+"\nÁ¦¸ñ:" +BCS_title +"\nÁÖ¼Ò:"+BCS_url +"\n±Û¾´ÀÌ:" + BCS_writer + "\n³¯Â¥:" + BCS_date);*/
+                        String BCS_GUBUN = BC_GUBUN.getContent().toString();
 
+                        String BCS_PROGRAM = BC_PROGRAM.getContent().toString();
+                        String BCS_DAY = BC_DAY.getContent().toString();
+                        String BCS_TIME = BC_TIME.getContent().toString();
+                        String BCS_PHONE = BC_PHONE.getContent().toString();
+                        String BCS_NUMBER = BC_NUMBER.getContent().toString();
+                        String BCS_DONG = BC_DONG.getContent().toString();
+
+
+
+                        mListData.add(new ListData(BCS_GUBUN, BCS_PROGRAM, BCS_DAY, BCS_TIME,BCS_PHONE,BCS_NUMBER,BCS_DONG,BCS_url));
 
 
                     }catch(Exception e){
@@ -195,8 +196,8 @@ public class MainActivity extends ActionBarActivity {
                 mHandler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        BBSAdapter.notifyDataSetChanged(); //¸ğµç ÀÛ¾÷ÀÌ ³¡³ª¸é ¸®½ºÆ® °»½Å
-                        progressDialog.dismiss(); //¸ğµç ÀÛ¾÷ÀÌ ³¡³ª¸é ´ÙÀÌ¾î·Î±× Á¾·á
+                        BBSAdapter.notifyDataSetChanged();
+                        progressDialog.dismiss();
                     }
                 }, 0);
             }
@@ -207,9 +208,9 @@ public class MainActivity extends ActionBarActivity {
 
     private boolean isInternetCon() {
         cManager=(ConnectivityManager)getSystemService(CONNECTIVITY_SERVICE);
-        mobile = cManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE); //¸ğ¹ÙÀÏ µ¥ÀÌÅÍ ¿©ºÎ
-        wifi = cManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI); //¿ÍÀÌÆÄÀÌ ¿©ºÎ
-        return !mobile.isConnected() && !wifi.isConnected(); //°á°ú°ªÀ» ¸®ÅÏ
+        mobile = cManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+        wifi = cManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        return !mobile.isConnected() && !wifi.isConnected();
     }
 
 
@@ -244,11 +245,9 @@ public class MainActivity extends ActionBarActivity {
 
     public class ViewHolder {
 
-        public TextView mType;
-        public TextView mTitle;
+        public TextView mGubun;
+        public TextView mProgram;
         public TextView mUrl;
-        public TextView mWriter;
-        public TextView mDate;
     }
 
     public class BBSListAdapter extends BaseAdapter {
@@ -284,9 +283,9 @@ public class MainActivity extends ActionBarActivity {
                 LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 convertView = inflater.inflate(R.layout.itemstyle, null);
 
-                holder.mTitle = (TextView) convertView.findViewById(R.id.item_title);
-                holder.mWriter = (TextView) convertView.findViewById(R.id.item_writer);
-                holder.mDate = (TextView) convertView.findViewById(R.id.item_date);
+                holder.mGubun = (TextView) convertView.findViewById(R.id.item_title);
+                holder.mProgram = (TextView) convertView.findViewById(R.id.item_writer);
+                holder.mUrl = (TextView) convertView.findViewById(R.id.item_date);
                 convertView.setTag(holder);
 
             } else {
@@ -296,14 +295,9 @@ public class MainActivity extends ActionBarActivity {
             ListData mData = mListData.get(position);
 
 
-            if(mData.mType.equals("°øÁö")){
-                holder.mTitle.setText(Html.fromHtml("<font color=#616161>[°øÁö] </font>" +mData.mTitle)); //"°øÁö" ÀÇ »ö±òÀ» ºÎºĞÀûÀ¸·Î ¾à°£ ÁøÇÏ°Ô ¼öÁ¤.
-            }else{
-                holder.mTitle.setText(mData.mTitle);
-            }
-
-            holder.mWriter.setText(mData.mWriter+" ¼±»ı´Ô"); //¼±»ı´ÔÀ» ºÙÈû
-            holder.mDate.setText(mData.mDate);
+            holder.mGubun.setText(mData.mGubun);
+            holder.mProgram.setText(mData.mProgram);
+            holder.mUrl.setText(mData.mUrl);
 
             return convertView;
 
