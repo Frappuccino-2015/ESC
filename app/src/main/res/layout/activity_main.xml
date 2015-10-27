@@ -1,44 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    android:paddingBottom="@dimen/activity_vertical_margin" tools:context=".MainActivity">
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
-    <LinearLayout
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="?attr/actionBarSize" />
+
+    <android.support.v4.widget.DrawerLayout
+        android:id="@+id/drawer_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        tools:context=".MainActivity">
 
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:minHeight="?attr/actionBarSize" />
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
 
-        <android.support.v4.widget.DrawerLayout
-            android:id="@+id/drawer_layout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            tools:context=".MainActivity">
-
-            <FrameLayout
-                android:id="@+id/container"
+            <ListView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="#303F9F"/>
+                android:id="@+id/listView"
+                android:scrollbars="none"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:divider="@null"/>
 
-            <View
-                android:id="@+id/drawer"
-                android:layout_width="240dp"
-                android:layout_height="match_parent"
-                android:layout_gravity="start"
-                android:background="#3F51B5" />
+        </RelativeLayout>
 
 
-        </android.support.v4.widget.DrawerLayout>
+        <View
+            android:id="@+id/drawer"
+            android:layout_width="240dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="start"
+            android:background="#3F51B5" />
 
-    </LinearLayout>
 
-</RelativeLayout>
+    </android.support.v4.widget.DrawerLayout>
+
+</LinearLayout>
+
