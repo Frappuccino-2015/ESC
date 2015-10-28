@@ -3,9 +3,9 @@ package com.example.esc.esc;
 /**
  * Created by dongbin on 2015-10-27.
  */
-public class ListData {
+public class PDGListData {
 
-    public String mGubun;
+    public String mTitle;
     public String mProgram;
     public String mDay;
     public String mTime;
@@ -15,12 +15,12 @@ public class ListData {
     public String mUrl;
 
 
-    public ListData()  {
+    public PDGListData()  {
     }
 
-    public ListData(String mGubun,String mProgram,String mDay,String mTime,String mPhone, String mNumber, String mDong, String mUrl)  {
+    public PDGListData(String mTitle, String mProgram, String mDay, String mTime, String mPhone, String mNumber, String mDong, String mUrl)  {
 
-        this.mGubun = mGubun;
+        this.mTitle = mTitle;
         this.mProgram = mProgram;
         this.mDay = mDay;
         this.mTime = mTime;
@@ -31,7 +31,7 @@ public class ListData {
         cleaned();
     }
     public void cleaned(){
-        mGubun = mGubun.replace("&nbsp;","");
+        mTitle = mTitle.replace("&nbsp;", "");
         mProgram = mProgram.replace("&nbsp;","");
         mDay = mDay.replace("&nbsp;","");
         mTime = mTime.replace("&nbsp;","");

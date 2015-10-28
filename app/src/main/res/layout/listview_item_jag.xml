@@ -1,0 +1,53 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity"
+    android:background="#ffffffff"
+    android:padding="5dp">
+
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:orientation="horizontal"
+            android:background="#ffffffff"
+            android:weightSum="100">
+
+            <TextView
+                android:id="@+id/item_title"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="Title"
+                android:textColor="#ff000000"
+                android:gravity="center"
+                android:layout_weight="20"/>
+            <TextView
+                android:id="@+id/item_dong"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="Dong"
+                android:textColor="#ff000000"
+                android:gravity="center"
+                android:layout_weight="27"/>
+            <TextView
+                android:id="@+id/item_date"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="Date"
+                android:textColor="#ff000000"
+                android:gravity="center"
+                android:layout_weight="23"/>
+            <TextView
+                android:id="@+id/item_file"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="File"
+                android:textColor="#ff000000"
+                android:gravity="center"
+                android:layout_weight="30"/>
+
+        </LinearLayout>
+
+</RelativeLayout>

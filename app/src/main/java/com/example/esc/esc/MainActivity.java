@@ -1,7 +1,6 @@
 package com.example.esc.esc;
 
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.net.ConnectivityManager;
@@ -15,15 +14,12 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.BaseAdapter;
+import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import net.htmlparser.jericho.Element;
@@ -37,27 +33,46 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends ActionBarActivity implements View.OnClickListener {
 
-    private static String URL_PRIMARY = "http://paldal.suwon.go.kr/menufiles/residents/";
-    private static String URL_LIST = "di_list.asp?menuid=sub050202";
+    private final int PALDAL_GU=0, JANGAN_GU=1;
+    private final int MAX_PAGE = 5;
+
+    private ArrayList<CenterInfo> centterInfoList;
+    private static String CENTER_NAME ="PDG";
+
+    private static String URL_PRIMARY,URL_NOTICE,CLASS_NAME;
+
+    public String mPrimaryUrl;
+    public String mListUrl1;
+    public String mListPage;
+    public String mListUrl2;
 
     private String url;
     private java.net.URL URL;
 
     private net.htmlparser.jericho.Source source;
     private ProgressDialog progressDialog;
-    private BBSListAdapter BBSAdapter = null;
-    private ListView BBSList;
-    private int BBSlocate;
+    private PDGListAdapter mPDGAdapter = null;
+    private JAGListAdapter mJAGAdapter = null;
+    private ListView listView;
+    private int tableLocate;
 
     private ConnectivityManager cManager;
     private NetworkInfo mobile;
     private NetworkInfo wifi;
+
+    private ArrayList<PDGListData> mPDGListData = new ArrayList<>();
+    private ArrayList<JAGListData> mJAGListData = new ArrayList<>();
+    private Button btnPDG, btnJAG;
+    private Boolean listFocused = true;
+
     Toolbar toolbar;
     DrawerLayout dlDrawer;
     ActionBarDrawerToggle dtToggle;
-    ArrayList<ListData> mListData = new ArrayList<>();
+    LinearLayout linearLayout;
+
+
 
     @Override
     protected void onStop() {
@@ -73,6 +88,7 @@ public class MainActivity extends ActionBarActivity {
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         dlDrawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        linearLayout = (LinearLayout)findViewById(R.id.drawer);
 
         setSupportActionBar(toolbar);
 
@@ -80,43 +96,99 @@ public class MainActivity extends ActionBarActivity {
         dlDrawer.setDrawerListener(dtToggle);
 
 
-        BBSList = (ListView)findViewById(R.id.listView);
-        BBSAdapter = new BBSListAdapter(this);
-        BBSList.setAdapter(BBSAdapter);
-        BBSList.setOnItemClickListener(
-                new AdapterView.OnItemClickListener() {
+        centterInfoList = new ArrayList<CenterInfo>();
+        setCenterList();
 
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
+        listView = (ListView)findViewById(R.id.listView);
+        mPDGAdapter = new PDGListAdapter(this,mPDGListData);
+        mJAGAdapter = new JAGListAdapter(this,mJAGListData);
 
-                        ListData mData = mListData.get(position);
-                        String URL_VIEW = mData.mUrl;
+        btnPDG = (Button)findViewById(R.id.btn_menu_pdg);
+        btnJAG = (Button)findViewById(R.id.btn_menu_jag);
+        btnPDG.setOnClickListener(this);
+        btnJAG.setOnClickListener(this);
 
-                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(URL_PRIMARY + URL_VIEW)));
-
-                    }
-                });
-
-
-        url = URL_PRIMARY + URL_LIST;
 
         if(isInternetCon()) {
             Toast.makeText(MainActivity.this, "인터넷에 연결되지않아 불러오기를 중단합니다.", Toast.LENGTH_SHORT).show();
             finish();
         }else{
             try {
-                process();
-                BBSAdapter.notifyDataSetChanged();
+                setList(); //네트워크 관련은 따로 쓰레드를 생성해야 UI 쓰레드와 겹치지 않는다. 그러므로 Thread 가 선언된 setList 메서드를 호출한다.
             } catch (Exception e) {
                 Log.d("ERROR", e + "");
 
             }
         }
 
+        if(CENTER_NAME == "PDG"){
+            listView.setAdapter(mPDGAdapter);
+        }else if(CENTER_NAME == "JAG"){
+            listView.setAdapter(mJAGAdapter);
+        }
 
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
+
+                if(dlDrawer.isDrawerOpen(linearLayout)){
+                    return;
+                }
+
+                String URL_VIEW = null;
+                if(CENTER_NAME == "PDG"){
+                    PDGListData mData = mPDGListData.get(position);
+                    Toast.makeText(MainActivity.this, mData.mProgram, Toast.LENGTH_SHORT).show();
+                    URL_VIEW = mData.mUrl;
+                }else if(CENTER_NAME == "JAG"){
+                    JAGListData mData = mJAGListData.get(position);
+                    Toast.makeText(MainActivity.this, mData.mTitle, Toast.LENGTH_SHORT).show();
+                    URL_VIEW = mData.mTitleUrl;
+                }else{
+                    return;
+                }
+
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(URL_PRIMARY + URL_VIEW)));
+
+
+            }
+        });
     }
 
-    private void process() throws IOException {
+    private void setCenterList(){
+
+        centterInfoList.add(PALDAL_GU, new CenterInfo(
+                "PALDAL_GU",
+                "http://paldal.suwon.go.kr/menufiles/residents/",
+                "di_list.asp?menuid=sub050202",
+                "tableLayout05"));
+
+        centterInfoList.get(PALDAL_GU).noticeUrl[1] = "di_list.asp?code=residents&block=1&page=";
+        centterInfoList.get(PALDAL_GU).noticeUrl[2] = "&mnuflag=&tag=&bd_com8=&bd_div=1&bd_com9=&bd_com10=&menuid=sub050202&dong_gubn=";
+
+        centterInfoList.add(JANGAN_GU, new CenterInfo(
+                "JANGAN_GU",
+                "http://jangan.suwon.go.kr/bbsplus/",
+                "list.asp?code=tbl_bbs_sub07020601",
+                "board_list"));
+
+        centterInfoList.get(JANGAN_GU).noticeUrl[1] = "list.asp?code=tbl_bbs_sub07020601&block=1&page=";
+        centterInfoList.get(JANGAN_GU).noticeUrl[2] = "&strSearch_text=&strSearch_div=&bd_gubn=all&mnuflag=&bd_gubn1=all";
+
+        URL_PRIMARY = centterInfoList.get(0).primaryUrl;
+        URL_NOTICE = centterInfoList.get(0).noticeUrl[0];
+        CLASS_NAME = centterInfoList.get(0).className;
+    }
+
+    private boolean isInternetCon() {
+        cManager=(ConnectivityManager)getSystemService(CONNECTIVITY_SERVICE);
+        mobile = cManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+        wifi = cManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        return !mobile.isConnected() && !wifi.isConnected();
+    }
+
+    private void setList() throws IOException {
 
         new Thread() {
 
@@ -131,93 +203,200 @@ public class MainActivity extends ActionBarActivity {
                     }
                 }, 0);
 
-                try {
-                    URL = new URL(url);
-                    InputStream html = URL.openStream();
-                    source = new net.htmlparser.jericho.Source(new InputStreamReader(html, "EUC-KR"));
-                    source.fullSequentialParse();
-                } catch (Exception e) {
-                    Log.d("ERROR", e + "");
-                }
+                getCommentDB();
 
-                List<StartTag> tabletags = source.getAllStartTags(HTMLElementName.TABLE);
-
-                for(int arrnum = 0;arrnum < tabletags.size(); arrnum++){
-
-
-                    if(tabletags.get(arrnum).toString().equals("<table class=\"tableLayout05\">")) {
-                        BBSlocate = arrnum;
-                        Log.d("tableLayout05", arrnum+"");
-                        break;
-                    }
-                }
-
-
-
-                Element BBS_TABLE = (Element) source.getAllElements(HTMLElementName.TABLE).get(BBSlocate);
-                Element BBS_TBODY = (Element) BBS_TABLE.getAllElements(HTMLElementName.TBODY).get(0);
-
-
-                for(int C_TR = 0; C_TR < BBS_TBODY.getAllElements(HTMLElementName.TR).size();C_TR++){
-
-                    try {
-                        Element BBS_TR = (Element) BBS_TBODY.getAllElements(HTMLElementName.TR).get(C_TR);
-
-                        Element BC_GUBUN = (Element)BBS_TR.getAllElements(HTMLElementName.TD).get(0);
-                        Element BC_PROGRAM = (Element)BBS_TR.getAllElements(HTMLElementName.TD).get(1);
-                        Element BC_DAY = (Element)BBS_TR.getAllElements(HTMLElementName.TD).get(2);
-                        Element BC_TIME = (Element)BBS_TR.getAllElements(HTMLElementName.TD).get(3);
-                        Element BC_PHONE = (Element)BBS_TR.getAllElements(HTMLElementName.TD).get(4);
-                        Element BC_NUMBER = (Element)BBS_TR.getAllElements(HTMLElementName.TD).get(5);
-                        Element BC_DONG = (Element)BBS_TR.getAllElements(HTMLElementName.TD).get(6);
-                        Element BC_info = (Element)BBS_TR.getAllElements(HTMLElementName.TD).get(7);
-                        Element BC_a = (Element) BC_info.getAllElements(HTMLElementName.A).get(0);
-                        String BCS_url = BC_a.getAttributeValue("href");
-
-
-                        String BCS_GUBUN = BC_GUBUN.getContent().toString();
-
-                        String BCS_PROGRAM = BC_PROGRAM.getContent().toString();
-                        String BCS_DAY = BC_DAY.getContent().toString();
-                        String BCS_TIME = BC_TIME.getContent().toString();
-                        String BCS_PHONE = BC_PHONE.getContent().toString();
-                        String BCS_NUMBER = BC_NUMBER.getContent().toString();
-                        String BCS_DONG = BC_DONG.getContent().toString();
-
-                        mListData.add(new ListData(BCS_GUBUN, BCS_PROGRAM, BCS_DAY, BCS_TIME,BCS_PHONE,BCS_NUMBER,BCS_DONG,BCS_url));
-
-
-                    }catch(Exception e){
-                        Log.d("BCSERROR",e+"");
-                    }
-                }
                 Handler mHandler = new Handler(Looper.getMainLooper());
                 mHandler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        BBSAdapter.notifyDataSetChanged();
-                        progressDialog.dismiss();
+                        if(CENTER_NAME == "PDG")
+                            mPDGAdapter.notifyDataSetChanged();
+                        else if(CENTER_NAME == "JAG")
+                            mJAGAdapter.notifyDataSetChanged();
+                        progressDialog.dismiss(); //모든 작업이 끝나면 다이어로그 종료
                     }
                 }, 0);
             }
-
         }.start();
-
     }
 
-    private boolean isInternetCon() {
-        cManager=(ConnectivityManager)getSystemService(CONNECTIVITY_SERVICE);
-        mobile = cManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
-        wifi = cManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-        return !mobile.isConnected() && !wifi.isConnected();
-    }
 
+
+    private void getCommentDB(){
+
+        if(CENTER_NAME == "PDG"){
+
+            URL_PRIMARY = centterInfoList.get(PALDAL_GU).primaryUrl;
+            URL_NOTICE = centterInfoList.get(PALDAL_GU).noticeUrl[0];
+            CLASS_NAME = centterInfoList.get(PALDAL_GU).className;
+
+            for(int page=1; page<=MAX_PAGE; page++) {
+
+                setURL(page);
+
+                List<StartTag> tableTags = source.getAllStartTags(HTMLElementName.TABLE);
+
+                for (int arrnum = 0; arrnum < tableTags.size(); arrnum++) {
+                    if (tableTags.get(arrnum).toString().equals("<table class=\"" + CLASS_NAME + "\">")) {
+                        tableLocate = arrnum;
+                        break;
+                    }
+                }
+
+                Element TABLE = (Element) source.getAllElements(HTMLElementName.TABLE).get(tableLocate);
+                Element TBODY = (Element) TABLE.getAllElements(HTMLElementName.TBODY).get(0);
+
+                for (int C_TR = 0; C_TR < TBODY.getAllElements(HTMLElementName.TR).size(); C_TR++) {
+
+                    try {
+                        Element TR = (Element) TBODY.getAllElements(HTMLElementName.TR).get(C_TR);
+
+                        Element TITLE = (Element) TR.getAllElements(HTMLElementName.TD).get(0);
+                        String title = TITLE.getContent().toString();
+
+                        Element PROGRAME = (Element) TR.getAllElements(HTMLElementName.TD).get(1);
+                        String program = PROGRAME.getContent().toString();
+
+                        Element DAY = (Element) TR.getAllElements(HTMLElementName.TD).get(2);
+                        String day = DAY.getContent().toString();
+
+                        Element TIME = (Element) TR.getAllElements(HTMLElementName.TD).get(3);
+                        String time = TIME.getContent().toString();
+
+                        Element PHONE = (Element) TR.getAllElements(HTMLElementName.TD).get(4);
+                        String phone = PHONE.getContent().toString();
+
+                        Element NUMBER = (Element) TR.getAllElements(HTMLElementName.TD).get(5);
+                        String number = NUMBER.getContent().toString();
+
+                        Element DONG = (Element) TR.getAllElements(HTMLElementName.TD).get(6);
+                        String dong = DONG.getContent().toString();
+
+                        Element INFO = (Element) TR.getAllElements(HTMLElementName.TD).get(7);
+                        Element A = (Element) INFO.getAllElements(HTMLElementName.A).get(0);
+                        String url = A.getAttributeValue("href");
+
+                        mPDGListData.add(new PDGListData(title, program, day, time, phone, number, dong, url));
+
+                    } catch (Exception e) {
+                        Log.d("BCSERROR", e + "");
+                    }
+                }
+            }
+
+        }else if(CENTER_NAME == "JAG") {
+            URL_PRIMARY = centterInfoList.get(JANGAN_GU).primaryUrl;
+            URL_NOTICE = centterInfoList.get(JANGAN_GU).noticeUrl[0];
+            CLASS_NAME = centterInfoList.get(JANGAN_GU).className;
+
+            for (int page = 1; page <= MAX_PAGE; page++) {
+
+                setURL(page);
+
+                List<StartTag> tableTags = source.getAllStartTags(HTMLElementName.TABLE);
+
+                for (int arrnum = 0; arrnum < tableTags.size(); arrnum++) {
+                    if (tableTags.get(arrnum).toString().equals("<table class=\"" + CLASS_NAME + "\">")) {
+                        tableLocate = arrnum;
+                        break;
+                    }
+                }
+
+                Element TABLE = (Element) source.getAllElements(HTMLElementName.TABLE).get(tableLocate);
+                Element TBODY = (Element) TABLE.getAllElements(HTMLElementName.TBODY).get(0);
+
+                for (int C_TR = 0; C_TR < TBODY.getAllElements(HTMLElementName.TR).size(); C_TR++) {
+
+                    try {
+                        Element TR = (Element) TBODY.getAllElements(HTMLElementName.TR).get(C_TR);
+
+                        Element TITLE = (Element) TR.getAllElements(HTMLElementName.TD).get(0);
+                        Element TITLE_A = (Element) TITLE.getAllElements(HTMLElementName.A).get(0);
+                        String title = TITLE_A.getContent().toString();
+                        String titleUrl = TITLE_A.getAttributeValue("href");
+
+                        Element FILE = (Element) TR.getAllElements(HTMLElementName.TD).get(1);
+                        Element FILE_A = (Element) FILE.getAllElements(HTMLElementName.A).get(0);
+                        String fileUrl = FILE_A.getAttributeValue("href");
+                        Element FILE_A_IMG = (Element) FILE_A.getAllElements(HTMLElementName.IMG).get(0);
+                        String fileImgUrl = FILE_A_IMG.getAttributeValue("src");
+
+                        Element DONG = (Element) TR.getAllElements(HTMLElementName.TD).get(2);
+                        String dong = DONG.getContent().toString();
+
+                        Element DATE = (Element) TR.getAllElements(HTMLElementName.TD).get(3);
+                        String date = DATE.getContent().toString();
+
+                        mJAGListData.add(new JAGListData(title, titleUrl, fileUrl, fileImgUrl, dong, date));
+
+
+                    } catch (Exception e) {
+                        Log.d("BCSERROR", e + "");
+                    }
+                }
+            }
+        }
+
+    }
+    private void setURL(int page){
+
+        if(CENTER_NAME == "PDG") {
+            URL_NOTICE = centterInfoList.get(PALDAL_GU).noticeUrl[1]+page+centterInfoList.get(PALDAL_GU).noticeUrl[2];
+        }else if(CENTER_NAME == "JAG"){
+            URL_NOTICE = centterInfoList.get(JANGAN_GU).noticeUrl[1]+page+centterInfoList.get(JANGAN_GU).noticeUrl[2];
+        }
+        Log.d("Main",URL_NOTICE);
+        url = URL_PRIMARY + URL_NOTICE;
+
+        try {
+            URL = new URL(url);
+            InputStream html = URL.openStream();
+            source = new net.htmlparser.jericho.Source(new InputStreamReader(html, "EUC-KR"));
+            source.fullSequentialParse();
+        } catch (Exception e) {
+            Log.d("ERROR", e + "");
+        }
+
+    }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
+    public void onClick(View v) {
+
+        if(v==btnPDG){
+            if(CENTER_NAME == "JAG"){
+                try {
+                    CENTER_NAME = "PDG";
+                    listView.setAdapter(mPDGAdapter);
+                    mPDGListData.clear();
+                    setList();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+        }else if(v==btnJAG){
+            if(CENTER_NAME == "PDG"){
+                try {
+                    CENTER_NAME = "JAG";
+                    listView.setAdapter(mJAGAdapter);
+                    mJAGListData.clear();
+                    setList();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        dlDrawer.closeDrawer(linearLayout);
+
+
     }
+
+// 우측 상단 메뉴 생성
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        getMenuInflater().inflate(R.menu.menu_main, menu);
+//        return true;
+//    }
 
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
@@ -238,71 +417,9 @@ public class MainActivity extends ActionBarActivity {
         if (dtToggle.onOptionsItemSelected(item)) {
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
-    public class ViewHolder {
 
-        public TextView mGubun;
-        public TextView mProgram;
-        public TextView mDay;
-    }
-
-    public class BBSListAdapter extends BaseAdapter {
-        private Context mContext = null;
-
-        public BBSListAdapter(Context mContext) {
-            this.mContext = mContext;
-        }
-
-
-        @Override
-        public int getCount() {
-            return mListData.size();
-        }
-
-        @Override
-        public Object getItem(int position) {
-            return mListData.get(position);
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return position;
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            ViewHolder holder;
-
-            if (convertView == null) {
-                holder = new ViewHolder();
-
-                LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                convertView = inflater.inflate(R.layout.itemstyle, null);
-
-                holder.mGubun = (TextView) convertView.findViewById(R.id.item_title);
-                holder.mProgram = (TextView) convertView.findViewById(R.id.item_writer);
-                holder.mDay = (TextView) convertView.findViewById(R.id.item_date);
-                convertView.setTag(holder);
-
-            } else {
-                holder = (ViewHolder) convertView.getTag();
-            }
-
-            ListData mData = mListData.get(position);
-
-
-            holder.mGubun.setText(mData.mGubun);
-            holder.mProgram.setText(mData.mProgram);
-            holder.mDay.setText(mData.mDay);
-
-            return convertView;
-
-        }
-
-
-    }
 
 }
