@@ -25,8 +25,6 @@ public class PDGListAdapter extends BaseAdapter {
         public TextView mDong;
         public TextView mDay;
         public TextView mTime;
-        public TextView mPhone;
-        public TextView mNumber;
 
     }
 
@@ -67,8 +65,6 @@ public class PDGListAdapter extends BaseAdapter {
             holder.mDong = (TextView) convertView.findViewById(R.id.item_dong);
             holder.mDay = (TextView) convertView.findViewById(R.id.item_day);
             holder.mTime = (TextView) convertView.findViewById(R.id.item_time);
-            holder.mPhone = (TextView) convertView.findViewById(R.id.item_phone);
-            holder.mNumber = (TextView) convertView.findViewById(R.id.item_number);
             convertView.setTag(holder);
 
         } else {
@@ -82,8 +78,6 @@ public class PDGListAdapter extends BaseAdapter {
         holder.mDong.setText(mData.mDong);
         holder.mDay.setText(mData.mDay);
         holder.mTime.setText(mData.mTime);
-        holder.mPhone.setText(mData.mPhone);
-        holder.mNumber.setText(mData.mNumber);
 
         return convertView;
 

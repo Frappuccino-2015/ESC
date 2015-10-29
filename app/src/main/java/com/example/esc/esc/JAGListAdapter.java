@@ -21,7 +21,6 @@ public class JAGListAdapter extends BaseAdapter {
     public class ViewHolder {
 
         public TextView mTitle;
-        public TextView mFile;
         public TextView mDong;
         public TextView mDate;
     }
@@ -60,7 +59,6 @@ public class JAGListAdapter extends BaseAdapter {
             holder.mTitle = (TextView) convertView.findViewById(R.id.item_title);
             holder.mDong = (TextView) convertView.findViewById(R.id.item_dong);
             holder.mDate = (TextView) convertView.findViewById(R.id.item_date);
-            holder.mFile = (TextView) convertView.findViewById(R.id.item_file);
 
             convertView.setTag(holder);
 
@@ -73,7 +71,6 @@ public class JAGListAdapter extends BaseAdapter {
         holder.mTitle.setText(mData.mTitle);
         holder.mDong.setText(mData.mDong);
         holder.mDate.setText(mData.mDate);
-        holder.mFile.setText(mData.mFileImgUrl);
 
         return convertView;
 

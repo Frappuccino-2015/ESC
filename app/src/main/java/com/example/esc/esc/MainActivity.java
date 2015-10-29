@@ -64,7 +64,7 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 
     private ArrayList<PDGListData> mPDGListData = new ArrayList<>();
     private ArrayList<JAGListData> mJAGListData = new ArrayList<>();
-    private Button btnPDG, btnJAG;
+    private Button btnPDG, btnJAG, btnCredit;
     private Boolean listFocused = true;
 
     Toolbar toolbar;
@@ -105,8 +105,10 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 
         btnPDG = (Button)findViewById(R.id.btn_menu_pdg);
         btnJAG = (Button)findViewById(R.id.btn_menu_jag);
+        btnCredit = (Button)findViewById(R.id.btn_credit);
         btnPDG.setOnClickListener(this);
         btnJAG.setOnClickListener(this);
+        btnCredit.setOnClickListener(this);
 
 
         if(isInternetCon()) {
@@ -386,6 +388,9 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
                     e.printStackTrace();
                 }
             }
+        }else if(v==btnCredit){
+            Intent intent = new Intent(MainActivity.this, CreditActivity.class);
+            startActivity(intent);
         }
         dlDrawer.closeDrawer(linearLayout);
 

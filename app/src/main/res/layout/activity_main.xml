@@ -23,11 +23,78 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <ListView
+            <WebView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+            </WebView>
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:id="@+id/listView"
-                />
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:gravity="center"
+                    android:text="팔달구"
+                    android:textSize="25dp"
+                    android:id="@+id/txt_gu"
+                    android:background="#0c56A7"
+                    />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:orientation="horizontal"
+                    android:background="#ff303030">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:textSize="15dp"
+                        android:text="구분"
+                        />
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:textSize="15dp"
+                        android:text="프로그램 이름"
+                        />
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:textSize="15dp"
+                        android:text="동"
+                        />
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:textSize="15dp"
+                        android:text="날짜/시간"
+                        />
+
+                </LinearLayout>
+
+                <ListView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:id="@+id/listView"
+                    />
+
+
+            </LinearLayout>
+
+
 
         </RelativeLayout>
 
@@ -46,13 +113,6 @@
                 android:layout_weight="2"
                 android:background="#ff000000">
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:gravity="center"
-                    android:layout_weight="1"
-                    android:text="사진"
-                    />
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
@@ -79,6 +139,12 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="JANGAN-GU"/>
+
+                <Button
+                    android:id="@+id/btn_credit"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Credits/Description"/>
 
 
             </LinearLayout>

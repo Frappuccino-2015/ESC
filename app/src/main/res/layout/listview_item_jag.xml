@@ -20,34 +20,28 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:text="Title"
+                android:textSize="15dp"
                 android:textColor="#ff000000"
                 android:gravity="center"
-                android:layout_weight="20"/>
+                android:layout_weight="25"/>
             <TextView
                 android:id="@+id/item_dong"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:text="Dong"
+                android:textSize="15dp"
                 android:textColor="#ff000000"
                 android:gravity="center"
-                android:layout_weight="27"/>
+                android:layout_weight="40"/>
             <TextView
                 android:id="@+id/item_date"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:text="Date"
+                android:textSize="15dp"
                 android:textColor="#ff000000"
                 android:gravity="center"
-                android:layout_weight="23"/>
-            <TextView
-                android:id="@+id/item_file"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:text="File"
-                android:textColor="#ff000000"
-                android:gravity="center"
-                android:layout_weight="30"/>
-
+                android:layout_weight="35"/>
         </LinearLayout>
 
 </RelativeLayout>

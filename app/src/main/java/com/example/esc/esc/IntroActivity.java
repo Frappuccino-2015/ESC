@@ -17,6 +17,8 @@ public class IntroActivity extends Activity {
     Handler handler = new Handler();
     handler.postDelayed(new Runnable() {
       public void run() {
+        //회원가입 안 되어 있으면 회원가입창
+        //회원가입 되어 있으면 밑으로
         Intent intent = new Intent(IntroActivity.this, MainActivity.class);
         startActivity(intent);
         // 뒤로가기 했을경우 안나오도록 없애주기 >> finish!!
