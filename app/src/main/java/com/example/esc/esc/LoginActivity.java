@@ -16,8 +16,6 @@ public class LoginActivity extends Activity {
         setContentView(R.layout.activity_main);
 
         Button btn_login = (Button)findViewById(R.id.btn_login);
-        RadioButton option1 = (RadioButton)findViewById(R.id.option1);
-        RadioButton option2 = (RadioButton)findViewById(R.id.option2);
         final EditText EText_id = (EditText)findViewById(R.id.EText_id);
         final EditText EText_pwd = (EditText)findViewById(R.id.EText_pwd);
 
@@ -33,5 +31,6 @@ public class LoginActivity extends Activity {
                 }
             }
         });
+        //로그인시 아이디값 넘어가서(이메일) MainActiviy에서 아이디값 가져가기(키워드 검색)
     }
 }
