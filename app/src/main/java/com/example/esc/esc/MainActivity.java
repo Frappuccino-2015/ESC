@@ -1,6 +1,5 @@
 package com.example.esc.esc;
 
-<<<<<<< HEAD
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -22,10 +21,6 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
-=======
-   import android.support.v7.app.AppCompatActivity;
-        import android.os.Bundle;
->>>>>>> 594ee2ba2cc8bccae545870b4f5cd13413a0a72c
 
 import net.htmlparser.jericho.Element;
 import net.htmlparser.jericho.HTMLElementName;
@@ -91,7 +86,6 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-<<<<<<< HEAD
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         dlDrawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         linearLayout = (LinearLayout)findViewById(R.id.drawer);
@@ -224,9 +218,7 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
                 }, 0);
             }
         }.start();
-=======
-        // merge
->>>>>>> 594ee2ba2cc8bccae545870b4f5cd13413a0a72c
+
     }
 
 

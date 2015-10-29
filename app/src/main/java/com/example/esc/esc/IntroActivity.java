@@ -1,5 +1,6 @@
 package com.example.esc.esc;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -7,7 +8,7 @@ import android.os.Handler;
 /**
  * Created by HyeJi on 2015-10-11.
  */
-public class IntroActivity extends MainActivity{
+public class IntroActivity extends Activity {
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
