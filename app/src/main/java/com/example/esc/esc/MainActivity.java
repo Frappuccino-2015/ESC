@@ -1,7 +1,12 @@
 package com.example.esc.esc;
 
+
 import android.app.ProgressDialog;
+import android.app.SearchManager;
+import android.app.SearchableInfo;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -12,14 +17,18 @@ import android.os.Looper;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import net.htmlparser.jericho.Element;
@@ -31,9 +40,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
-public class MainActivity extends ActionBarActivity implements View.OnClickListener {
+public class MainActivity extends ActionBarActivity implements View.OnClickListener, SearchView.OnQueryTextListener {
 
     private final int PALDAL_GU=0, JANGAN_GU=1;
     private final int MAX_PAGE = 5;
@@ -55,6 +66,7 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
     private ProgressDialog progressDialog;
     private PDGListAdapter mPDGAdapter = null;
     private JAGListAdapter mJAGAdapter = null;
+    private MenuKeywordListAdapter keywordListAdapter = null;
     private ListView listView;
     private int tableLocate;
 
@@ -64,15 +76,27 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 
     private ArrayList<PDGListData> mPDGListData = new ArrayList<>();
     private ArrayList<JAGListData> mJAGListData = new ArrayList<>();
+
     private Button btnPDG, btnJAG, btnCredit;
     private Boolean listFocused = true;
+    private TextView txtGu,txtPage,txtMenuAge,txtMenuSex;
+    private LinearLayout linearLayoutMenuProfile;
+    private String searchedWord = new String();
+
+    private ArrayList<String> KeyordList = new ArrayList<>();
+    private ListView listViewKeyord;
+
+
+    private SearchManager searchManager;
+    private SearchView mSearchView;
 
     Toolbar toolbar;
     DrawerLayout dlDrawer;
     ActionBarDrawerToggle dtToggle;
     LinearLayout linearLayout;
 
-
+    SharedPreferences prefs;
+    SharedPreferences.Editor editor;
 
     @Override
     protected void onStop() {
@@ -92,7 +116,7 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 
         setSupportActionBar(toolbar);
 
-        dtToggle = new ActionBarDrawerToggle(this, dlDrawer, R.string.app_name, R.string.app_name);
+        dtToggle = new ActionBarDrawerToggle(this, dlDrawer,toolbar, R.string.app_name, R.string.app_name);
         dlDrawer.setDrawerListener(dtToggle);
 
 
@@ -102,6 +126,8 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
         listView = (ListView)findViewById(R.id.listView);
         mPDGAdapter = new PDGListAdapter(this,mPDGListData);
         mJAGAdapter = new JAGListAdapter(this,mJAGListData);
+        keywordListAdapter = new MenuKeywordListAdapter(this,KeyordList);
+
 
         btnPDG = (Button)findViewById(R.id.btn_menu_pdg);
         btnJAG = (Button)findViewById(R.id.btn_menu_jag);
@@ -109,6 +135,42 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
         btnPDG.setOnClickListener(this);
         btnJAG.setOnClickListener(this);
         btnCredit.setOnClickListener(this);
+
+        txtGu = (TextView)findViewById(R.id.txt_gu);
+        txtPage = (TextView)findViewById(R.id.txt_page);
+        txtGu.setOnClickListener(this);
+
+        linearLayoutMenuProfile = (LinearLayout)findViewById(R.id.linearlayout_menu_profile);
+        linearLayoutMenuProfile.setOnClickListener(this);
+
+        txtMenuAge = (TextView)findViewById(R.id.txt_menu_age);
+        txtMenuSex = (TextView)findViewById(R.id.txt_menu_sex);
+        listViewKeyord = (ListView)findViewById(R.id.listview_menu_keyword);
+
+
+        prefs = this.getSharedPreferences("myPrefs", Context.MODE_PRIVATE);
+        editor = prefs.edit();
+
+        txtMenuAge.setText(prefs.getString("age", "00"));
+        if(prefs.getString("sex","man").equals("man")){
+            txtMenuSex.setText("남자");
+        }else if(prefs.getString("sex","man").equals("woman")){
+            txtMenuSex.setText("여자");
+        }
+
+        Set<String> temp = new HashSet<>();
+        temp.add("EMPTY");
+
+        Set<String> list =  prefs.getStringSet("keywordList", temp);
+        for(String keyword : list){
+            KeyordList.add(keyword);
+        }
+
+        listViewKeyord.setAdapter(keywordListAdapter);
+
+        searchedWord = "";
+        txtPage.setText(MAX_PAGE+" Page");
+
 
 
         if(isInternetCon()) {
@@ -141,11 +203,9 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
                 String URL_VIEW = null;
                 if(CENTER_NAME == "PDG"){
                     PDGListData mData = mPDGListData.get(position);
-                    Toast.makeText(MainActivity.this, mData.mProgram, Toast.LENGTH_SHORT).show();
                     URL_VIEW = mData.mUrl;
                 }else if(CENTER_NAME == "JAG"){
                     JAGListData mData = mJAGListData.get(position);
-                    Toast.makeText(MainActivity.this, mData.mTitle, Toast.LENGTH_SHORT).show();
                     URL_VIEW = mData.mTitleUrl;
                 }else{
                     return;
@@ -266,11 +326,13 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
                         Element TIME = (Element) TR.getAllElements(HTMLElementName.TD).get(3);
                         String time = TIME.getContent().toString();
 
-                        Element PHONE = (Element) TR.getAllElements(HTMLElementName.TD).get(4);
-                        String phone = PHONE.getContent().toString();
+//                        Element PHONE = (Element) TR.getAllElements(HTMLElementName.TD).get(4);
+//                        String phone = PHONE.getContent().toString();
+                        String phone = "";
 
-                        Element NUMBER = (Element) TR.getAllElements(HTMLElementName.TD).get(5);
-                        String number = NUMBER.getContent().toString();
+//                        Element NUMBER = (Element) TR.getAllElements(HTMLElementName.TD).get(5);
+//                        String number = NUMBER.getContent().toString();
+                        String number = "";
 
                         Element DONG = (Element) TR.getAllElements(HTMLElementName.TD).get(6);
                         String dong = DONG.getContent().toString();
@@ -279,7 +341,15 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
                         Element A = (Element) INFO.getAllElements(HTMLElementName.A).get(0);
                         String url = A.getAttributeValue("href");
 
-                        mPDGListData.add(new PDGListData(title, program, day, time, phone, number, dong, url));
+                        if(searchedWord.equals("")){
+                            mPDGListData.add(new PDGListData(title, program, day, time, phone, number, dong, url));
+                        }else{
+                            if(searchData(title, program, dong, day, time)) {
+                                mPDGListData.add(new PDGListData(title, program, day, time, phone, number, dong, url));
+                            }else{
+                                continue;
+                            }
+                        }
 
                     } catch (Exception e) {
                         Log.d("BCSERROR", e + "");
@@ -318,11 +388,13 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
                         String title = TITLE_A.getContent().toString();
                         String titleUrl = TITLE_A.getAttributeValue("href");
 
-                        Element FILE = (Element) TR.getAllElements(HTMLElementName.TD).get(1);
-                        Element FILE_A = (Element) FILE.getAllElements(HTMLElementName.A).get(0);
-                        String fileUrl = FILE_A.getAttributeValue("href");
-                        Element FILE_A_IMG = (Element) FILE_A.getAllElements(HTMLElementName.IMG).get(0);
-                        String fileImgUrl = FILE_A_IMG.getAttributeValue("src");
+//                        Element FILE = (Element) TR.getAllElements(HTMLElementName.TD).get(1);
+//                        Element FILE_A = (Element) FILE.getAllElements(HTMLElementName.A).get(0);
+//                        String fileUrl = FILE_A.getAttributeValue("href");
+//                        Element FILE_A_IMG = (Element) FILE_A.getAllElements(HTMLElementName.IMG).get(0);
+//                        String fileImgUrl = FILE_A_IMG.getAttributeValue("src");
+                        String fileUrl = "";
+                        String fileImgUrl = "";
 
                         Element DONG = (Element) TR.getAllElements(HTMLElementName.TD).get(2);
                         String dong = DONG.getContent().toString();
@@ -330,8 +402,18 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
                         Element DATE = (Element) TR.getAllElements(HTMLElementName.TD).get(3);
                         String date = DATE.getContent().toString();
 
-                        mJAGListData.add(new JAGListData(title, titleUrl, fileUrl, fileImgUrl, dong, date));
 
+
+                        if(searchedWord.equals("")) {
+                            mJAGListData.add(new JAGListData(title, titleUrl, fileUrl, fileImgUrl, dong, date));
+                        } else{
+                            if(searchData(title, dong, date, "", "")) {
+                                mJAGListData.add(new JAGListData(title, titleUrl, fileUrl, fileImgUrl, dong, date));
+                            }else{
+                                continue;
+                            }
+
+                        }
 
                     } catch (Exception e) {
                         Log.d("BCSERROR", e + "");
@@ -348,7 +430,6 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
         }else if(CENTER_NAME == "JAG"){
             URL_NOTICE = centterInfoList.get(JANGAN_GU).noticeUrl[1]+page+centterInfoList.get(JANGAN_GU).noticeUrl[2];
         }
-        Log.d("Main",URL_NOTICE);
         url = URL_PRIMARY + URL_NOTICE;
 
         try {
@@ -361,6 +442,21 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
         }
 
     }
+    private boolean searchData(String arg0, String arg1, String arg2, String arg3, String arg4){
+        ArrayList<String> list = new ArrayList<String>();
+        list.add(arg0);
+        list.add(arg1);
+        list.add(arg2);
+        list.add(arg3);
+        list.add(arg4);
+
+        for(String temp : list){
+            if(temp.contains(searchedWord)){
+                return true;
+            }
+        }
+        return false;
+    }
 
     @Override
     public void onClick(View v) {
@@ -369,8 +465,10 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
             if(CENTER_NAME == "JAG"){
                 try {
                     CENTER_NAME = "PDG";
+                    txtGu.setText("팔달구");
                     listView.setAdapter(mPDGAdapter);
                     mPDGListData.clear();
+                    searchedWord = "";
                     setList();
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -381,8 +479,10 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
             if(CENTER_NAME == "PDG"){
                 try {
                     CENTER_NAME = "JAG";
+                    txtGu.setText("장안구");
                     listView.setAdapter(mJAGAdapter);
                     mJAGListData.clear();
+                    searchedWord = "";
                     setList();
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -391,18 +491,101 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
         }else if(v==btnCredit){
             Intent intent = new Intent(MainActivity.this, CreditActivity.class);
             startActivity(intent);
+        }else if(v==txtGu){
+            if(dlDrawer.isDrawerOpen(linearLayout)){
+                return;
+            }
+            if(CENTER_NAME == "PDG"){
+                try {
+                    mPDGListData.clear();
+                    searchedWord = "";
+                    setList();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }else if(CENTER_NAME == "JAG"){
+                try {
+                    mJAGListData.clear();
+                    searchedWord = "";
+                    setList();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }else if(v==linearLayoutMenuProfile){
+            Intent intent = new Intent(MainActivity.this, JoinActivity.class);
+            startActivity(intent);
+            finish();
         }
         dlDrawer.closeDrawer(linearLayout);
 
 
     }
 
-// 우측 상단 메뉴 생성
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        getMenuInflater().inflate(R.menu.menu_main, menu);
-//        return true;
-//    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_main, menu);
+        MenuItem searchItem = menu.findItem(R.id.action_search);
+        mSearchView = (SearchView) searchItem.getActionView();
+        setupSearchView(searchItem);
+
+        return true;
+    }
+
+    private void setupSearchView(MenuItem searchItem) {
+
+        if (isAlwaysExpanded()) {
+            mSearchView.setIconifiedByDefault(false);
+        } else {
+            searchItem.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
+        }
+
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        if (searchManager != null) {
+            List<SearchableInfo> searchables = searchManager.getSearchablesInGlobalSearch();
+
+            SearchableInfo info = searchManager.getSearchableInfo(getComponentName());
+            for (SearchableInfo inf : searchables) {
+                if (inf.getSuggestAuthority() != null && inf.getSuggestAuthority().startsWith("applications")) {
+                    info = inf;
+                }
+            }
+            mSearchView.setSearchableInfo(info);
+        }
+
+        mSearchView.setOnQueryTextListener(this);
+    }
+
+    public boolean onQueryTextChange(String newText) {
+        return false;
+    }
+
+    public boolean onQueryTextSubmit(String query) {
+
+        searchedWord = query;
+        mPDGListData.clear();
+        mJAGListData.clear();
+        try {
+            setList();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
+    public boolean onClose() {
+        return false;
+    }
+
+    protected boolean isAlwaysExpanded() {
+        return false;
+    }
+
 
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {

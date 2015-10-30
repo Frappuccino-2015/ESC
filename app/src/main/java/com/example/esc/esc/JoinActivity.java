@@ -52,13 +52,6 @@ public class JoinActivity extends AppCompatActivity {
         prefs = this.getSharedPreferences("myPrefs", Context.MODE_PRIVATE);
         editor = prefs.edit();
 
-        Boolean save = prefs.getBoolean("save", false);
-//        if(save){
-//            Intent intent = new Intent(JoinActivity.this,MainActivity.class);
-//            startActivity(intent);
-//            finish();
-//        }
-
         radioMan.setChecked(true);
 
         listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -72,14 +65,11 @@ public class JoinActivity extends AppCompatActivity {
         btnAddKeyword.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (editKeyword.getText().toString().equals("")) {
-                    Toast.makeText(JoinActivity.this, "키워드를 입력해주세요", Toast.LENGTH_SHORT).show();
-                } else {
-                    keywordList.add(editKeyword.getText().toString());
-                }
+
+                keywordList.add(editKeyword.getText().toString());
 
                 keywordListAdapter.notifyDataSetChanged();
-
+                editKeyword.setText("");
             }
         });
 
@@ -89,6 +79,10 @@ public class JoinActivity extends AppCompatActivity {
 
                 if (editAge.getText().toString().equals("")) {
                     Toast.makeText(JoinActivity.this, "나이를 입력해주세요", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if (keywordList.size()==0) {
+                    Toast.makeText(JoinActivity.this, "키워드를 입력해주세요", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
@@ -101,7 +95,7 @@ public class JoinActivity extends AppCompatActivity {
                 }
                 Set<String> stringSet = new HashSet<>();
                 stringSet.addAll(keywordList);
-                editor.putStringSet("kewordList", stringSet);
+                editor.putStringSet("keywordList", stringSet);
                 editor.putBoolean("save",true);
                 editor.commit();
 

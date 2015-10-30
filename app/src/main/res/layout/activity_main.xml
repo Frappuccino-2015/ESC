@@ -2,9 +2,9 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".MainActivity"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    tools:context=".MainActivity"
     android:orientation="vertical">
 
     <android.support.v7.widget.Toolbar
@@ -34,15 +34,39 @@
                 android:layout_height="match_parent"
                 android:orientation="vertical">
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="60dp"
-                    android:gravity="center"
-                    android:text="팔달구"
-                    android:textSize="25dp"
-                    android:id="@+id/txt_gu"
-                    android:background="#0c56A7"
-                    />
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="70dp"
+                        android:background="#0c56A7">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:gravity="center"
+                            android:text="팔달구"
+                            android:textSize="35dp"
+                            android:textStyle="bold"
+                            android:id="@+id/txt_gu"
+                            />
+
+                        <TextView
+                            android:id="@+id/txt_page"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentRight="true"
+                            android:layout_alignParentBottom="true"
+                            android:text="page"
+                            android:textSize="15dp"
+                            android:layout_marginRight="10dp"
+                            android:layout_marginBottom="5dp"/>
+
+
+                    </RelativeLayout>
+
+
+
+
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -105,21 +129,73 @@
             android:layout_height="match_parent"
             android:orientation="vertical"
             android:layout_gravity="start"
-            android:background="#3F51B5" >
+            android:weightSum="100"
+            android:background="#0c56A7" >
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal"
-                android:layout_weight="2"
-                android:background="#ff000000">
+                android:layout_height="70dp"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:layout_marginTop="20dp">
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                <LinearLayout
+                    android:id="@+id/linearlayout_menu_profile"
+                    android:layout_width="200dp"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center">
+                    <TextView
+                        android:id="@+id/txt_menu_age"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="00"
+                        android:textSize="40dp"
+                        />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text=" 세"
+                        android:textSize="40dp"/>
+
+                    <TextView
+                        android:id="@+id/txt_menu_sex"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="남자"
+                        android:textSize="40dp"
+                        android:layout_marginLeft="10dp" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="170dp"
+                android:orientation="vertical"
+                android:gravity="center">
+
+                <Button
+                    android:id="@+id/btn_menu_pdg"
+                    android:layout_width="200dp"
+                    android:layout_height="40dp"
                     android:gravity="center"
-                    android:layout_weight="1"
-                    android:text="이름"/>
+                    android:text="PALDAL-GU"/>
+
+                <Button
+                    android:id="@+id/btn_menu_jag"
+                    android:layout_width="200dp"
+                    android:layout_height="40dp"
+                    android:gravity="center"
+                    android:text="JANGAN-GU"/>
+
+                <Button
+                    android:id="@+id/btn_credit"
+                    android:layout_width="200dp"
+                    android:layout_height="40dp"
+                    android:gravity="center"
+                    android:text="Credits/Description"/>
 
             </LinearLayout>
 
@@ -127,28 +203,25 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical"
-                android:layout_weight="1">
+                android:gravity="center_horizontal">
 
-                <Button
-                    android:id="@+id/btn_menu_pdg"
-                    android:layout_width="match_parent"
+                <TextView
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="PALDAL-GU"/>
+                    android:text="내 키워드"
+                    android:textSize="30dp"
+                    />
+               <ListView
+                   android:id="@+id/listview_menu_keyword"
+                   android:layout_width="200dp"
+                   android:layout_height="wrap_content"
+                   android:dividerHeight="0.1dp"
+                   android:divider="#ffffffff">
 
-                <Button
-                    android:id="@+id/btn_menu_jag"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="JANGAN-GU"/>
-
-                <Button
-                    android:id="@+id/btn_credit"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Credits/Description"/>
-
+               </ListView>
 
             </LinearLayout>
+
         </LinearLayout>
 
 
