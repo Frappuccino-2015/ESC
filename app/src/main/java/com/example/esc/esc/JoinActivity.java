@@ -49,7 +49,7 @@ public class JoinActivity extends AppCompatActivity {
 
         listview.setAdapter(keywordListAdapter);
 
-        prefs = this.getSharedPreferences("myPrefs", Context.MODE_PRIVATE);
+        prefs = this.getSharedPreferences("myPrefsESC", Context.MODE_PRIVATE);
         editor = prefs.edit();
 
         radioMan.setChecked(true);

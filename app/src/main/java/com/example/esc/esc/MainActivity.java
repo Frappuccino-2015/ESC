@@ -26,8 +26,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -54,11 +56,6 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 
     private static String URL_PRIMARY,URL_NOTICE,CLASS_NAME;
 
-    public String mPrimaryUrl;
-    public String mListUrl1;
-    public String mListPage;
-    public String mListUrl2;
-
     private String url;
     private java.net.URL URL;
 
@@ -78,25 +75,29 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
     private ArrayList<JAGListData> mJAGListData = new ArrayList<>();
 
     private Button btnPDG, btnJAG, btnCredit;
-    private Boolean listFocused = true;
-    private TextView txtGu,txtPage,txtMenuAge,txtMenuSex;
-    private LinearLayout linearLayoutMenuProfile;
+    private TextView txtGu,txtPage;
     private String searchedWord = new String();
 
-    private ArrayList<String> KeyordList = new ArrayList<>();
+    private ArrayList<String> keywordList = new ArrayList<>();
     private ListView listViewKeyord;
-
 
     private SearchManager searchManager;
     private SearchView mSearchView;
 
-    Toolbar toolbar;
-    DrawerLayout dlDrawer;
-    ActionBarDrawerToggle dtToggle;
-    LinearLayout linearLayout;
+    private Toolbar toolbar;
+    private DrawerLayout dlDrawer;
+    private ActionBarDrawerToggle dtToggle;
+    private LinearLayout menuLayout,mainLayout;
+    private RelativeLayout searchingKeywordLayout;
 
-    SharedPreferences prefs;
-    SharedPreferences.Editor editor;
+    private SharedPreferences prefs;
+    private SharedPreferences.Editor editor;
+
+    private TextView txtMenuAge,txtMenuSex,txtMenuKeyword;
+    private LinearLayout menuProfileLayout;
+
+    private Boolean searchingKeyword = true;
+    private ImageView imageSearchingKewordCancel;
 
     @Override
     protected void onStop() {
@@ -112,13 +113,12 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         dlDrawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        linearLayout = (LinearLayout)findViewById(R.id.drawer);
-
+        menuLayout = (LinearLayout)findViewById(R.id.drawer);
+        mainLayout = (LinearLayout)findViewById(R.id.main_layout);
         setSupportActionBar(toolbar);
 
         dtToggle = new ActionBarDrawerToggle(this, dlDrawer,toolbar, R.string.app_name, R.string.app_name);
         dlDrawer.setDrawerListener(dtToggle);
-
 
         centterInfoList = new ArrayList<CenterInfo>();
         setCenterList();
@@ -126,7 +126,7 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
         listView = (ListView)findViewById(R.id.listView);
         mPDGAdapter = new PDGListAdapter(this,mPDGListData);
         mJAGAdapter = new JAGListAdapter(this,mJAGListData);
-        keywordListAdapter = new MenuKeywordListAdapter(this,KeyordList);
+        keywordListAdapter = new MenuKeywordListAdapter(this,keywordList);
 
 
         btnPDG = (Button)findViewById(R.id.btn_menu_pdg);
@@ -140,15 +140,19 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
         txtPage = (TextView)findViewById(R.id.txt_page);
         txtGu.setOnClickListener(this);
 
-        linearLayoutMenuProfile = (LinearLayout)findViewById(R.id.linearlayout_menu_profile);
-        linearLayoutMenuProfile.setOnClickListener(this);
-
         txtMenuAge = (TextView)findViewById(R.id.txt_menu_age);
         txtMenuSex = (TextView)findViewById(R.id.txt_menu_sex);
+        txtMenuKeyword = (TextView)findViewById(R.id.txt_menu_keyword);
         listViewKeyord = (ListView)findViewById(R.id.listview_menu_keyword);
+        menuProfileLayout = (LinearLayout)findViewById(R.id.linearlayout_menu_profile);
+        menuProfileLayout.setOnClickListener(this);
+        txtMenuKeyword.setOnClickListener(this);
 
+        searchingKeywordLayout = (RelativeLayout)findViewById(R.id.searching_keyword_layout);
+        imageSearchingKewordCancel = (ImageView)findViewById(R.id.searching_keyword_cancel);
+        imageSearchingKewordCancel.setOnClickListener(this);
 
-        prefs = this.getSharedPreferences("myPrefs", Context.MODE_PRIVATE);
+        prefs = this.getSharedPreferences("myPrefsESC", Context.MODE_PRIVATE);
         editor = prefs.edit();
 
         txtMenuAge.setText(prefs.getString("age", "00"));
@@ -163,15 +167,10 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 
         Set<String> list =  prefs.getStringSet("keywordList", temp);
         for(String keyword : list){
-            KeyordList.add(keyword);
+            keywordList.add(keyword);
         }
 
-        listViewKeyord.setAdapter(keywordListAdapter);
-
-        searchedWord = "";
-        txtPage.setText(MAX_PAGE+" Page");
-
-
+//        mainLayout.removeView(searchingKeywordLayout);
 
         if(isInternetCon()) {
             Toast.makeText(MainActivity.this, "인터넷에 연결되지않아 불러오기를 중단합니다.", Toast.LENGTH_SHORT).show();
@@ -180,10 +179,18 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
             try {
                 setList(); //네트워크 관련은 따로 쓰레드를 생성해야 UI 쓰레드와 겹치지 않는다. 그러므로 Thread 가 선언된 setList 메서드를 호출한다.
             } catch (Exception e) {
-                Log.d("ERROR", e + "");
+                Log.d("CONTTECTERROR", e + "");
 
             }
         }
+
+        listViewKeyord.setAdapter(keywordListAdapter);
+
+
+
+
+        searchedWord = "";
+        txtPage.setText(MAX_PAGE + " Page");
 
         if(CENTER_NAME == "PDG"){
             listView.setAdapter(mPDGAdapter);
@@ -196,7 +203,7 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
             @Override
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
 
-                if(dlDrawer.isDrawerOpen(linearLayout)){
+                if(dlDrawer.isDrawerOpen(menuLayout)){
                     return;
                 }
 
@@ -251,6 +258,8 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
     }
 
     private void setList() throws IOException {
+        mPDGListData.clear();
+        mJAGListData.clear();
 
         new Thread() {
 
@@ -341,18 +350,20 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
                         Element A = (Element) INFO.getAllElements(HTMLElementName.A).get(0);
                         String url = A.getAttributeValue("href");
 
-                        if(searchedWord.equals("")){
-                            mPDGListData.add(new PDGListData(title, program, day, time, phone, number, dong, url));
-                        }else{
-                            if(searchData(title, program, dong, day, time)) {
-                                mPDGListData.add(new PDGListData(title, program, day, time, phone, number, dong, url));
-                            }else{
-                                continue;
-                            }
+                        ArrayList<String> dataList = new ArrayList<String>();
+                        dataList.add(title);
+                        dataList.add(program);
+                        dataList.add(dong);
+                        dataList.add(day);
+                        dataList.add(time);
+
+                        if(!checkingList(dataList)){
+                          continue;
                         }
+                        mPDGListData.add(new PDGListData(title, program, day, time, phone, number, dong, url));
 
                     } catch (Exception e) {
-                        Log.d("BCSERROR", e + "");
+                        Log.d("HTMLERROR", e + "");
                     }
                 }
             }
@@ -402,18 +413,15 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
                         Element DATE = (Element) TR.getAllElements(HTMLElementName.TD).get(3);
                         String date = DATE.getContent().toString();
 
+                        ArrayList<String> dataList = new ArrayList<String>();
+                        dataList.add(title);
+                        dataList.add(dong);
+                        dataList.add(date);
 
-
-                        if(searchedWord.equals("")) {
-                            mJAGListData.add(new JAGListData(title, titleUrl, fileUrl, fileImgUrl, dong, date));
-                        } else{
-                            if(searchData(title, dong, date, "", "")) {
-                                mJAGListData.add(new JAGListData(title, titleUrl, fileUrl, fileImgUrl, dong, date));
-                            }else{
-                                continue;
-                            }
-
+                        if(!checkingList(dataList)){
+                            continue;
                         }
+                        mJAGListData.add(new JAGListData(title, titleUrl,fileUrl,fileImgUrl, dong, date));
 
                     } catch (Exception e) {
                         Log.d("BCSERROR", e + "");
@@ -442,17 +450,42 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
         }
 
     }
-    private boolean searchData(String arg0, String arg1, String arg2, String arg3, String arg4){
-        ArrayList<String> list = new ArrayList<String>();
-        list.add(arg0);
-        list.add(arg1);
-        list.add(arg2);
-        list.add(arg3);
-        list.add(arg4);
 
-        for(String temp : list){
-            if(temp.contains(searchedWord)){
-                return true;
+    private boolean checkingList(ArrayList<String> dataList){
+
+        ArrayList<String> mKeywordList = new ArrayList<>();
+        if(searchingKeyword){
+            mKeywordList = keywordList;
+            if(searchData(dataList, mKeywordList)) {
+                // 통과
+            }else{
+                return false;
+            }
+        }
+
+        ArrayList<String> serachList = new ArrayList<>();
+        if(searchedWord.equals("")){
+            //통과
+        }else{
+            serachList.add(searchedWord);
+            if(searchData(dataList,serachList)) {
+                //통과
+            }else{
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean searchData(ArrayList<String> dataList, ArrayList<String> wordList ){
+
+        for(String data : dataList){
+            Log.d("Main","dataList :"+ data);
+            for(String word : wordList){
+                Log.d("Main","wordList :"+ word);
+                if(data.contains(word)){
+                    return true;
+                }
             }
         }
         return false;
@@ -467,7 +500,6 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
                     CENTER_NAME = "PDG";
                     txtGu.setText("팔달구");
                     listView.setAdapter(mPDGAdapter);
-                    mPDGListData.clear();
                     searchedWord = "";
                     setList();
                 } catch (IOException e) {
@@ -481,7 +513,6 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
                     CENTER_NAME = "JAG";
                     txtGu.setText("장안구");
                     listView.setAdapter(mJAGAdapter);
-                    mJAGListData.clear();
                     searchedWord = "";
                     setList();
                 } catch (IOException e) {
@@ -492,32 +523,53 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
             Intent intent = new Intent(MainActivity.this, CreditActivity.class);
             startActivity(intent);
         }else if(v==txtGu){
-            if(dlDrawer.isDrawerOpen(linearLayout)){
+            if(dlDrawer.isDrawerOpen(menuLayout)){
                 return;
             }
             if(CENTER_NAME == "PDG"){
                 try {
-                    mPDGListData.clear();
-                    searchedWord = "";
+
                     setList();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }else if(CENTER_NAME == "JAG"){
                 try {
-                    mJAGListData.clear();
                     searchedWord = "";
                     setList();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
-        }else if(v==linearLayoutMenuProfile){
+        }else if(v==menuProfileLayout){
             Intent intent = new Intent(MainActivity.this, JoinActivity.class);
             startActivity(intent);
             finish();
+        }else if(v==txtMenuKeyword) {
+            if(searchingKeyword){
+            }else{
+                searchingKeyword = true;
+                mainLayout.removeView(listView);
+                mainLayout.addView(searchingKeywordLayout);
+                mainLayout.addView(listView);
+                try {
+                    setList();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+        } else if(v==imageSearchingKewordCancel){
+            searchingKeyword = false;
+            mainLayout.removeView(searchingKeywordLayout);
+            try {
+                setList();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
         }
-        dlDrawer.closeDrawer(linearLayout);
+        dlDrawer.closeDrawer(menuLayout);
 
 
     }
@@ -567,8 +619,6 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
     public boolean onQueryTextSubmit(String query) {
 
         searchedWord = query;
-        mPDGListData.clear();
-        mJAGListData.clear();
         try {
             setList();
         } catch (IOException e) {

@@ -22,7 +22,7 @@ public class IntroActivity extends Activity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_intro);
 
-    prefs = this.getSharedPreferences("myPrefs", Context.MODE_PRIVATE);
+    prefs = this.getSharedPreferences("myPrefsESC", Context.MODE_PRIVATE);
     editor = prefs.edit();
 
     save = prefs.getBoolean("save", false);

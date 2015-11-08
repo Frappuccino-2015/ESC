@@ -30,6 +30,7 @@
             </WebView>
 
             <LinearLayout
+                android:id="@+id/main_layout"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical">
@@ -108,6 +109,32 @@
                         />
 
                 </LinearLayout>
+
+                <RelativeLayout
+                    android:id="@+id/searching_keyword_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp">
+
+                    <TextView
+                        android:id="@+id/searching_keyword_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="키워드 검색 중.."
+                        android:textSize="25dp"
+                        android:layout_centerHorizontal="true"
+                        android:layout_centerVertical="true"
+                        android:textColor="#ff000000" />
+
+                    <ImageView
+                        android:id="@+id/searching_keyword_cancel"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_marginRight="30dp"
+                        android:layout_centerVertical="true"
+                        android:layout_alignParentRight="true"
+                        android:src="@mipmap/search_keyword_cancel"/>
+
+                </RelativeLayout>
 
                 <ListView
                     android:layout_width="match_parent"
@@ -206,6 +233,7 @@
                 android:gravity="center_horizontal">
 
                 <TextView
+                    android:id="@+id/txt_menu_keyword"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="내 키워드"
