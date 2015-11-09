@@ -113,17 +113,18 @@
                 <RelativeLayout
                     android:id="@+id/searching_keyword_layout"
                     android:layout_width="match_parent"
-                    android:layout_height="50dp">
+                    android:layout_height="50dp"
+                    android:background="#5a595b"
+                    >
 
                     <TextView
                         android:id="@+id/searching_keyword_title"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="키워드 검색 중.."
+                        android:text="키워드 검색 결과"
                         android:textSize="25dp"
                         android:layout_centerHorizontal="true"
-                        android:layout_centerVertical="true"
-                        android:textColor="#ff000000" />
+                        android:layout_centerVertical="true" />
 
                     <ImageView
                         android:id="@+id/searching_keyword_cancel"
@@ -157,21 +158,23 @@
             android:orientation="vertical"
             android:layout_gravity="start"
             android:weightSum="100"
-            android:background="#0c56A7" >
+            android:background="#040507" >
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="70dp"
+                android:layout_height="90dp"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:layout_marginTop="20dp">
+                android:paddingTop="20dp"
+                android:background="#333438"
+                >
 
                 <LinearLayout
                     android:id="@+id/linearlayout_menu_profile"
-                    android:layout_width="150dp"
-                    android:background="#0083cb"
+                    android:layout_width="200dp"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
+                    android:paddingBottom="20dp"
                     android:gravity="center">
                     <TextView
                         android:id="@+id/txt_menu_age"
@@ -202,21 +205,23 @@
                 android:layout_width="match_parent"
                 android:layout_height="170dp"
                 android:orientation="vertical"
-                android:gravity="center">
+                android:gravity="center"
+                android:layout_marginTop="1dp"
+                android:background="#333438">
 
                 <Button
                     android:id="@+id/btn_menu_pdg"
                     android:layout_width="200dp"
                     android:layout_height="40dp"
                     android:gravity="center"
-                    android:text="PALDAL-GU"/>
+                    android:text="팔달구"/>
 
                 <Button
                     android:id="@+id/btn_menu_jag"
                     android:layout_width="200dp"
                     android:layout_height="40dp"
                     android:gravity="center"
-                    android:text="JANGAN-GU"/>
+                    android:text="장안구"/>
 
                 <Button
                     android:id="@+id/btn_credit"
@@ -231,14 +236,20 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical"
-                android:gravity="center_horizontal">
+                android:gravity="center_horizontal"
+                android:layout_marginTop="1dp"
+                android:paddingTop="10dp"
+                android:background="#333438">
 
                 <TextView
                     android:id="@+id/txt_menu_keyword"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="내 키워드"
-                    android:textSize="30dp"
+                    android:padding="5dp"
+                    android:layout_marginBottom="10dp"
+                    android:background="#5a595b"
+                    android:textSize="25dp"
                     />
                <ListView
                    android:id="@+id/listview_menu_keyword"

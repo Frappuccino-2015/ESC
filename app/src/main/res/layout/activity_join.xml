@@ -5,8 +5,8 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingBottom="@dimen/activity_vertical_margin"
-    tools:context="com.example.esc.esc.JoinActivity"
-    android:background="@mipmap/join_back">
+    android:background="@mipmap/join_back"
+    tools:context="com.example.esc.esc.JoinActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -21,7 +21,7 @@
             <TextView
                 android:layout_marginTop="200dp"
                 android:layout_width="100dp"
-                android:layout_height="match_parent"
+                android:layout_height="45dp"
                 android:text="나이"
                 android:textAlignment="center"
                 android:textColor="#343049"
@@ -31,13 +31,15 @@
                 android:layout_marginTop="200dp"
                 android:id="@+id/edit_age"
                 android:layout_width="150dp"
+                android:textColor="#343049"
+                android:textAlignment="center"
                 android:layout_height="match_parent"
                 android:inputType="number"/>
 
             <TextView
                 android:layout_marginTop="200dp"
                 android:layout_width="100dp"
-                android:layout_height="match_parent"
+                android:layout_height="45dp"
                 android:text="세"
                 android:textColor="#343049"
                 android:textSize="25dp"/>
@@ -50,7 +52,7 @@
             android:orientation="horizontal">
             <TextView
                 android:layout_width="100dp"
-                android:layout_height="match_parent"
+                android:layout_height="45dp"
                 android:text="성별"
                 android:textAlignment="center"
                 android:textColor="#343049"
@@ -89,7 +91,7 @@
             android:layout_height="wrap_content">
             <TextView
                 android:layout_width="100dp"
-                android:layout_height="wrap_content"
+                android:layout_height="45dp"
                 android:text="키워드"
                 android:textAlignment="center"
                 android:textColor="#343049"
@@ -97,6 +99,8 @@
             <EditText
                 android:id="@+id/edit_keyword"
                 android:layout_width="150dp"
+                android:textColor="#343049"
+                android:textAlignment="center"
                 android:layout_height="wrap_content" />
             <Button
                 android:id="@+id/btn_add_keyword"
@@ -116,8 +120,7 @@
             android:layout_height="200dp"
             android:layout_marginLeft="100dp"
             android:dividerHeight="0.1dp"
-            android:divider="#ff000000"
-            android:background="#343049"/>
+            android:divider="#ff000000" />
 
         <Button
             android:id="@+id/btn_next"
