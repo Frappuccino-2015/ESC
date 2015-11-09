@@ -19,19 +19,23 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
             <TextView
+                android:layout_marginTop="200dp"
                 android:layout_width="100dp"
                 android:layout_height="match_parent"
                 android:text="나이"
+                android:textAlignment="center"
                 android:textColor="#343049"
                 android:textSize="25dp"/>
 
             <EditText
+                android:layout_marginTop="200dp"
                 android:id="@+id/edit_age"
                 android:layout_width="150dp"
                 android:layout_height="match_parent"
                 android:inputType="number"/>
 
             <TextView
+                android:layout_marginTop="200dp"
                 android:layout_width="100dp"
                 android:layout_height="match_parent"
                 android:text="세"
@@ -48,6 +52,7 @@
                 android:layout_width="100dp"
                 android:layout_height="match_parent"
                 android:text="성별"
+                android:textAlignment="center"
                 android:textColor="#343049"
                 android:textSize="25dp" />
 
@@ -86,6 +91,7 @@
                 android:layout_width="100dp"
                 android:layout_height="wrap_content"
                 android:text="키워드"
+                android:textAlignment="center"
                 android:textColor="#343049"
                 android:textSize="25dp"/>
             <EditText
@@ -113,14 +119,16 @@
             android:divider="#ff000000"
             android:background="#343049"/>
 
-    </LinearLayout>
+        <Button
+            android:id="@+id/btn_next"
+            android:layout_gravity="right"
+            android:layout_marginTop="-50dp"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:background="@mipmap/arrow"/>
 
-    <Button
-        android:id="@+id/btn_next"
-        android:layout_width="70dp"
-        android:layout_height="70dp"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:background="@mipmap/arrow"/>
+    </LinearLayout>
 
 </RelativeLayout>
