@@ -528,7 +528,7 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
             }
             if(CENTER_NAME == "PDG"){
                 try {
-
+                    searchedWord = "";
                     setList();
                 } catch (IOException e) {
                     e.printStackTrace();
